@@ -4,7 +4,7 @@
 Formula 1, or F1, "is the highest class of single-seater auto racing sanctioned
 by the Fédération Internationale de l'Automobile (FIA)" (Source:
 [Wikipedia](https://en.wikipedia.org/wiki/Formula_One)). F1 is a global sport,
-with the annual championship involving races that have been held in all continents except Antarctica.
+with the annual championship involving races that have been held on all continents (except Antarctica).
 
 In F1, constructors build two race cars and engage drivers to race in them.
 Drivers first compete for a starting position in the race in a qualifying
@@ -44,9 +44,55 @@ affect a driver's chance of arriving in second place, and how.
 
 ### Prediction Task
 The prediction task seeks to build a predictive model to predict which driver
-comes in second place for races between 2011 and 2017.
+comes in second place for races between 2011 and 2017, using data from 1950 to
+2010.
 
-## To Do/Current Progress
+
+## Project Progress
+
+### To Do
+
+#### General
+1. Populate and maintain references
+
+#### Inferential Task
+1. Develop and explain informal theory of F1 and testable hypotheses in
+[`Inferential.md`](reports/documents/Inferential.md)
+2. Develop and explain statistical approach, and operationalisation of
+variables, for the inferential task in
+[`Inferential.md`](reports/documents/Inferential.md)
+3. Wrangle data to provide variables of interest based on 2.
+4. Run analysis and present results
+  - Overall model fit
+  - Variable importance
+  - Marginal effects of variables
+5. Discussion of statistical results in relation to proposed theory
+
+#### Prediction Task
+1. Choose and justify choice of model evaluation metric
+2. Split data into training and test data
+3. Run and track several models with different hyperparameters on the test set.
+  - Experiment with features that could help predict the target
+    - Reuse features from inferential task
+    - Add more features that could help
+      - Wrangle data to provide these other features
+    - Use feature extraction and feature selection techniques to generate other
+  features to try
+    - Scale features
+4. Iterate over 3 and 4 to try and improve model performance
+5. Share model results
+6. Explain and discuss best performing models
+  - Provide statistics of model performance
+  - Provide measures of feature importance
+
+#### Final
+1. Comparison of predictive model with inferential model
+
+### Done
+#### General
+1. Create basic repo structure
+2. Populate README
+3. Draw up to do list
 
 ## Repo File Structure
 ```
