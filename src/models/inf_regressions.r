@@ -106,6 +106,83 @@ write.df(logreg_top2_results_spark, "/mnt/xql2001-gr5069/interim/final_project/l
 # COMMAND ----------
 
 # MAGIC %md
+# MAGIC ### Marginal effects grid position
+
+# COMMAND ----------
+
+logreg_top2_results$coef
+
+# COMMAND ----------
+
+logreg_top2_results$lower_CI
+
+# COMMAND ----------
+
+logreg_top2_results$upper_CI
+
+# COMMAND ----------
+
+grid_alone <- logreg_top2_results$coef[5]
+grid_alone
+
+# COMMAND ----------
+
+grid_alone_low <- logreg_top2_results$lower_CI[5]
+grid_alone_low
+
+# COMMAND ----------
+
+grid_alone_high <- logreg_top2_results$upper_CI[5]
+grid_alone_high
+
+# COMMAND ----------
+
+grid_w_1_stop <- logreg_top2_results$coef[5] + logreg_top2_results$coef[6]
+grid_w_1_stop
+
+# COMMAND ----------
+
+grid_w_1_stop_low <- logreg_top2_results$lower_CI[5] + logreg_top2_results$lower_CI[6]
+grid_w_1_stop_low
+
+# COMMAND ----------
+
+grid_w_1_stop_high <- logreg_top2_results$upper_CI[5] + logreg_top2_results$upper_CI[6]
+grid_w_1_stop_high
+
+# COMMAND ----------
+
+grid_w_2_stop <- logreg_top2_results$coef[5] + logreg_top2_results$coef[7]
+grid_w_2_stop
+
+# COMMAND ----------
+
+grid_w_2_stop_low <- logreg_top2_results$lower_CI[5] + logreg_top2_results$lower_CI[7]
+grid_w_2_stop_low
+
+# COMMAND ----------
+
+grid_w_2_stop_high <- logreg_top2_results$upper_CI[5] + logreg_top2_results$upper_CI[7]
+grid_w_2_stop_high
+
+# COMMAND ----------
+
+grid_w_3_stop <- logreg_top2_results$coef[5] + logreg_top2_results$coef[8]
+grid_w_3_stop
+
+# COMMAND ----------
+
+grid_w_3_stop_low <- logreg_top2_results$lower_CI[5] + logreg_top2_results$lower_CI[8]
+grid_w_3_stop_low
+
+# COMMAND ----------
+
+grid_w_3_stop_high <- logreg_top2_results$upper_CI[5] + logreg_top2_results$upper_CI[8]
+grid_w_3_stop_high
+
+# COMMAND ----------
+
+# MAGIC %md
 # MAGIC ## LogReg 2 - Predicting 1st/2nd among only 1st or 2nd place
 
 # COMMAND ----------
@@ -130,6 +207,10 @@ df_1or2_dummy$circuit_type_street <- as.factor(df_1or2_dummy$circuit_type_street
 # COMMAND ----------
 
 glimpse(df_1or2_dummy)
+
+# COMMAND ----------
+
+df_1or2_dummy$positionOrder <- relevel(df_1or2_dummy$positionOrder, ref = "1")
 
 # COMMAND ----------
 
@@ -191,6 +272,48 @@ logreg_1or2_results <- full_join(logreg_1or2_results, logreg_1or2_CIs, by = "nam
   select(names, everything()) %>%
   arrange(names)
 colnames(logreg_1or2_results) <- c("var", "coef", "StdError", "z_score", "p_val", "lower_CI", "upper_CI")
+
+# COMMAND ----------
+
+logreg_1or2_results$coef
+
+# COMMAND ----------
+
+logreg_1or2_results$lower_CI
+
+# COMMAND ----------
+
+logreg_1or2_results$upper_CI
+
+# COMMAND ----------
+
+grid_alone <- logreg_1or2_results$coef[5]
+grid_alone
+
+# COMMAND ----------
+
+grid_alone_low <- logreg_1or2_results$lower_CI[5]
+grid_alone_low
+
+# COMMAND ----------
+
+grid_alone_high <- logreg_1or2_results$upper_CI[5]
+grid_alone_high
+
+# COMMAND ----------
+
+grid_w_1_stop <- logreg_1or2_results$coef[5] + logreg_1or2_results$coef[6]
+grid_w_1_stop
+
+# COMMAND ----------
+
+grid_w_1_stop_low <- logreg_1or2_results$lower_CI[5] + logreg_1or2_results$lower_CI[6]
+grid_w_1_stop_low
+
+# COMMAND ----------
+
+grid_w_1_stop_high <- logreg_1or2_results$upper_CI[5] + logreg_1or2_results$upper_CI[6]
+grid_w_1_stop_high
 
 # COMMAND ----------
 
