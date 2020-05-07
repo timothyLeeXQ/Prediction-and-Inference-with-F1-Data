@@ -55,19 +55,6 @@ comes in second place for races between 2011 and 2017, using data from 1950 to
 #### General
 1. Populate and maintain references
 
-#### Inferential Task
-1. Develop and explain informal theory of F1 and testable hypotheses in
-[`Inferential.md`](reports/documents/Inferential.md)
-2. Develop and explain statistical approach, and operationalisation of
-variables, for the inferential task in
-[`Inferential.md`](reports/documents/Inferential.md)
-3. Wrangle data to provide variables of interest based on 2.
-4. Run analysis and present results
-  - Overall model fit
-  - Variable importance
-  - Marginal effects of variables
-5. Discussion of statistical results in relation to proposed theory
-
 #### Prediction Task
 1. Choose and justify choice of model evaluation metric
 2. Split data into training and test data
@@ -93,6 +80,19 @@ variables, for the inferential task in
 1. Create basic repo structure
 2. Populate README
 3. Draw up to do list
+
+#### Inferential Task
+1. Develop and explain informal theory of F1 and testable hypotheses in
+[`Inferential.md`](reports/documents/Inferential.md)
+2. Develop and explain statistical approach, and operationalisation of
+variables, for the inferential task in
+[`Inferential.md`](reports/documents/Inferential.md)
+3. Wrangle data to provide variables of interest based on 2.
+4. Run analysis and present results
+  - Overall model fit
+  - Variable importance
+  - Marginal effects of variables
+5. Discussion of statistical results in relation to proposed theory
 
 ## Repo File Structure
 ```
