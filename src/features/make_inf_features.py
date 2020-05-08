@@ -11,33 +11,6 @@ import pandas as pd
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ## AWS Mount
-
-# COMMAND ----------
-
-ACCESS_KEY = ''
-# Encode the Secret Key as that can contain '/'
-SECRET_KEY = ''.replace("/", "%2F")
-AWS_BUCKET_NAME_RAW = 'ne-gr5069'
-MOUNT_NAME_RAW = 'ne-gr5069'
-AWS_BUCKET_NAME_PROC = 'xql2001-gr5069'
-MOUNT_NAME_PROC = 'xql2001-gr5069'
-
-# COMMAND ----------
-
-dbutils.fs.mount('s3a://%s:%s@%s' % (ACCESS_KEY, SECRET_KEY, AWS_BUCKET_NAME_RAW),
-                 '/mnt/%s' % MOUNT_NAME_RAW)
-display(dbutils.fs.ls('/mnt/%s' % MOUNT_NAME_RAW))
-
-# COMMAND ----------
-
-dbutils.fs.mount('s3a://%s:%s@%s' % (ACCESS_KEY, SECRET_KEY, AWS_BUCKET_NAME_PROC),
-                 '/mnt/%s' % MOUNT_NAME_PROC)
-display(dbutils.fs.ls('/mnt/%s' % MOUNT_NAME_PROC))
-
-# COMMAND ----------
-
-# MAGIC %md
 # MAGIC ## Raw Data
 
 # COMMAND ----------
@@ -112,7 +85,9 @@ df_refs_with_outcome = df_results.select('raceId', 'driverId', 'constructorId', 
   .withColumn('1_or_2',
               F.when(F.col('positionOrder') > 2, 'lose')\
               .otherwise('win'))\
-  .join(df_races.select('raceId', 'year'), on = ['raceId'], how = 'left')\
+  .join(df_races.select('raceId', 'year'), on = ['raceId'], how = 'left')
+
+df_refs_with_outcome = df_refs_with_outcome\
   .filter(df_refs_with_outcome['year'] >= 1950)\
   .filter(df_refs_with_outcome['year'] <= 2017)
               
@@ -409,12 +384,21 @@ display(df_refs_outcome_driver_exp_pit_const_circuit.groupby('circuit_type').cou
 
 # COMMAND ----------
 
-# MAGIC %md
-# MAGIC ## LogReg 1 - Predicting 1st & 2nd
+display(df_refs_outcome_driver_exp_pit_const_circuit)
 
 # COMMAND ----------
 
-display(df_refs_outcome_driver_exp_pit_const_circuit)
+# MAGIC %md 
+# MAGIC Borrowing this for predictive task
+
+# COMMAND ----------
+
+df_refs_outcome_driver_exp_pit_const_circuit.coalesce(1).write.csv('/mnt/xql2001-gr5069/interim/final_project/df_inf_master.csv', header=True)
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ## LogReg 1 - Predicting 1st & 2nd
 
 # COMMAND ----------
 
