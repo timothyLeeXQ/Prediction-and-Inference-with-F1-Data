@@ -279,4 +279,4 @@ However, our certainty is far from absolute.
 ## Endnote 2: Future Work
 1. As mentioned above, incorporating data on race conditions may be important to capture more of the variance in finishes
 2. Finding ways to dissociate the problems of collinearity that confound the explanatory value of our model would be important from learning more about second place finishes in F1.
-3. Better operationalisation of constructs, such as using driver and constructor average position as markers of driver and constructor skill/quality as is considered in [`Predictive.md`](reports/documents/Predictive.md).
+3. Better operationalisation of constructs, such as using driver and constructor average position as markers of driver and constructor skill/quality as is considered in [`Predictive.md`](Predictive.md).
