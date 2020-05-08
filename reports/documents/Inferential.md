@@ -165,14 +165,21 @@ AIC: 8606.4
 * Model significance:  p < 0.001
 
 ##### Coefficients
-![Coefficients for logistic regression of top 2 finishes](https://i.imgur.com/FciK69k.png)
+![Coefficients for logistic regression of top 2 finishes](https://i.imgur.com/2xA5v5T.png[/img])
 * _x-es denote 95% confidence interval bands_
 * _Numerical values are available in the .Rmd output, saved as HTML in `src/models/inf_regressions.html`_
+* _`pit_strategy_3a` refers to a 3 stop strategy, whereas `pit_strategy_3stops` refers to a more than 3 stop strategy_
+
+##### Standardised Coefficients
+![Standardised Coefficients for logistic regression of top 2 finishes](https://i.imgur.com/QuLmYwH.png)
+* _Numerical values are available in the .Rmd output, saved as HTML in `src/models/inf_regressions.html`_
+* _`pit_strategy_3a` refers to a 3 stop strategy, whereas `pit_strategy_3stops` refers to a more than 3 stop strategy_
 
 ##### P-values
 
-![P-values for logistic regression of top 2 finishes](https://i.imgur.com/q9B7ubH.png)
+![P-values for logistic regression of top 2 finishes](https://i.imgur.com/d84HwDL.png)
 * _Numerical values are available in the .Rmd output, saved as HTML in `src/models/inf_regressions.html`_
+* _`pit_strategy_3a` refers to a 3 stop strategy, whereas `pit_strategy_3stops` refers to a more than 3 stop strategy_
 
 ##### Statistically Significant Variables
 
@@ -188,7 +195,9 @@ Statistically significant model terms are:
 
 ##### Marginal Effects of most important variable
 
-The most important variable is likely grid position. It has the highest absolute coefficient after constructor quality (- 0.88) and pit strategy (highest coefficient for this is 1.13 for a 1 stop strategy over missing pit-stop data). However, constructor quality and pit strategies are nominal variables while grid position has a range from 1 to over 20. Looking at their coefficients (-0.35 for grid position), starting 6 places behind already has a greater impact on the odds of coming in first or second than having a bad constructor and bad pit strategy (of more than 3 stops), even though a more than 3 stop strategy does not have a significant conditional relationship with grid position.
+The most important variable is likely grid position. It has the highest standardised coefficient by far, even after adding up the standardised coefficients for conditional relationships.
+
+Its absolute coefficient is also the highest after constructor quality (- 0.88) and pit strategy (highest coefficient for this is 1.13 for a 1 stop strategy over missing pit-stop data), despite a range from 1 to over 20 instead of 0-1. Looking at their coefficients (-0.35 for grid position), starting 6 places behind already has a greater impact on the odds of coming in first or second than having a bad constructor and bad pit strategy (of more than 3 stops), even though a more than 3 stop strategy does not have a significant conditional relationship with grid position.
 
 * Single decrease in Grid position given 1-pit strategy (over missing pit strategy data) on log odds of finishing first/second
   - -0.35 [-0.38, -0.32] + -0.26 [-0.43, -0.12] ≈ **-0.62** [-0.82, -0.44] (95%CI)
@@ -225,13 +234,22 @@ Driver experience approaches significance, but does not meet it entirely, though
 ##### Overall Model Fit and Significance
 * McFadden R<sup>2</sup>: 0.06738338
 * Model significance:  p < 0.001
+
 ##### Coefficients
-![Coefficients for logistic regression of first vs second place](https://i.imgur.com/iFCunsy.png)
+![Coefficients for logistic regression of first vs second place](https://i.imgur.com/a7mdSmh.png)
 * _x-es denote 95% confidence interval bands_
 * _Numerical values are available in the .Rmd output, saved as HTML in `src/models/inf_regressions.html`_
-##### P-values
-![P-values for logistic regression of first vs second place](https://i.imgur.com/vIFkzj5.png)
+* _`pit_strategy_3a` refers to a 3 stop strategy, whereas `pit_strategy_3stops` refers to a more than 3 stop strategy_
+
+##### Standardised Coefficients
+![Standardised Coefficients for logistic regression of of first vs second place](https://i.imgur.com/lj9Tjn4.png)
 * _Numerical values are available in the .Rmd output, saved as HTML in `src/models/inf_regressions.html`_
+* _`pit_strategy_3a` refers to a 3 stop strategy, whereas `pit_strategy_3stops` refers to a more than 3 stop strategy_
+
+##### P-values
+![P-values for logistic regression of first vs second place](https://i.imgur.com/EqYCQic.png)
+* _Numerical values are available in the .Rmd output, saved as HTML in `src/models/inf_regressions.html`_
+* _`pit_strategy_3a` refers to a 3 stop strategy, whereas `pit_strategy_3stops` refers to a more than 3 stop strategy_
 
 ##### Statistically Significant Variables
 
@@ -244,7 +262,9 @@ Statistically significant model terms are:
 
 ##### Marginal Effects of most important variable
 
-Like with predicting first and second, the most important variable is likely grid position. Despite having the lowest statistically significant coefficient, grid position has a range from 1 to over 20 rather than just 0 and 1. Looking at their coefficients (0.24 for grid position), starting from 8 places behind has a greater impact on the odds of coming in second over first than having a single pit strategy, despite significant conditional relationships of grid strategy and having one pit stop.
+Like with predicting first and second, the most important variable is likely grid position. Despite having the lowest statistically significant coefficient, grid position has a range from 1 to over 20 rather than just 0 and 1. It's standardised coefficient is also the largest by far, even after adding up the standardised coeffient from conditional relationships.
+
+Starting from 8 places behind has a greater impact on the odds of coming in second over first than having a single pit strategy, despite significant conditional relationships of grid strategy and having one pit stop.
 
 * Single decrease in Grid position given 1-pit strategy (over missing pit strategy data) on log odds of finishing second over first
   - 0.24 [0.17, 0.32] + 0.85 [0.31, 1.54] ≈ **1.09** [0.48, 1.86] (95%CI)
