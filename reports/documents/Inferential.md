@@ -119,6 +119,10 @@ Unfortunately, it is not immediately clear to me which of these two alternatives
 
 ## Method and Statistical Approach
 
+### The data
+Data on F1 races from 1950 to 2017 were obtained as part of a class on applied data science. The data seem similar to [this set from
+Kaggle](https://www.kaggle.com/cjgdev/formula-1-race-data-19502017), which can be used for easy reference on what data is available.
+
 ### Modelling Approach
 I use logistic regression to model the impact of the variables and their interactions on the chance of finishing second. Logistic regression models the probability of a certain event, as opposed to it not happening, given changes in the values/presence or absence of certain factors. Here, we seek to model how the probability of a number 2 finish changes in relation to the factors and interactions stated above. This will help us explain why a driver finishes second.
 
@@ -275,3 +279,4 @@ However, our certainty is far from absolute.
 ## Endnote 2: Future Work
 1. As mentioned above, incorporating data on race conditions may be important to capture more of the variance in finishes
 2. Finding ways to dissociate the problems of collinearity that confound the explanatory value of our model would be important from learning more about second place finishes in F1.
+3. Better operationalisation of constructs, such as using driver and constructor average position as markers of driver and constructor skill/quality as is considered in [`Predictive.md`](reports/documents/Predictive.md).
