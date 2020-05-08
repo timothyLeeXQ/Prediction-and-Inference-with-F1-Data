@@ -53,6 +53,19 @@ that were used as the baseline") +
 
 # COMMAND ----------
 
+# Visualising standard coefficients
+ggplot(logreg_top2_results) + 
+  geom_point(aes(x = std_beta, y = var)) + 
+  labs(x = "Standardised Coefficient",
+       y = "Term",
+       caption="Nominal variables with missing values are those
+that were used as the baseline") +
+    geom_vline(xintercept = 0) + 
+  theme_minimal() +
+  theme(plot.background = element_rect(fill = "white"))
+
+# COMMAND ----------
+
 # MAGIC %md
 # MAGIC ## LogReg 2 - Predicting 1st/2nd among only 1st or 2nd place
 
@@ -87,6 +100,19 @@ ggplot(logreg_1or2_results) +
   geom_point(aes(x = lower_CI, y = var), shape = 4) + 
   geom_point(aes(x = upper_CI, y = var), shape = 4) + 
   labs(x = "Coefficient",
+       y = "Term",
+       caption="Nominal variables with missing values are those
+that were used as the baseline") +
+    geom_vline(xintercept = 0) + 
+  theme_minimal() +
+  theme(plot.background = element_rect(fill = "white"))
+
+# COMMAND ----------
+
+# Visualising standard coefficients
+ggplot(logreg_1or2_results) + 
+  geom_point(aes(x = std_beta, y = var)) + 
+  labs(x = "Standardised Coefficient",
        y = "Term",
        caption="Nominal variables with missing values are those
 that were used as the baseline") +

@@ -2,6 +2,7 @@
 library(SparkR)
 library(sparklyr)
 library(dplyr)
+library(reghelper)
 
 # COMMAND ----------
 
@@ -24,7 +25,10 @@ display(df_top2_dummy)
 df_top2_dummy$`1_or_2` <- as.factor(df_top2_dummy$`1_or_2`)
 df_top2_dummy$pit_strategy_1 <- as.factor(df_top2_dummy$pit_strategy_1)
 df_top2_dummy$pit_strategy_2 <- as.factor(df_top2_dummy$pit_strategy_2)
-df_top2_dummy$pit_strategy_3 <- as.factor(df_top2_dummy$pit_strategy_3)
+
+#This has to be renamed or it screws with reghelper::beta()
+df_top2_dummy$pit_strategy_3a <- as.factor(df_top2_dummy$pit_strategy_3)
+
 df_top2_dummy$pit_strategy_3stops <- as.factor(df_top2_dummy$pit_strategy_3stops)
 df_top2_dummy$pit_strategy_missing <- as.factor(df_top2_dummy$pit_strategy_missing)
 df_top2_dummy$constructor_quality_not_winner <- as.factor(df_top2_dummy$constructor_quality_not_winner)
@@ -43,7 +47,7 @@ logreg_top2 <- glm(`1_or_2` ~ grid +
                    years_since_debut +
                    pit_strategy_1 +
                    pit_strategy_2 +
-                   pit_strategy_3 +
+                   pit_strategy_3a +
                    pit_strategy_3stops +
                    pit_strategy_missing +
                    constructor_quality_not_winner +
@@ -52,7 +56,7 @@ logreg_top2 <- glm(`1_or_2` ~ grid +
                    circuit_type_street +
                    pit_strategy_1*grid +
                    pit_strategy_2*grid +
-                   pit_strategy_3*grid +
+                   pit_strategy_3a*grid +
                    pit_strategy_3stops*grid +
                    pit_strategy_missing*grid +
                    years_since_debut*grid +
@@ -86,17 +90,37 @@ cat("p-value: ", logreg_top2_p_val)
 
 # COMMAND ----------
 
-# Get summary table and CIs for plotting
+# Get summary table, std coefficients and CIs for plotting
 logreg_top2_CIs <- data.frame(confint(logreg_top2))
 logreg_top2_CIs$names <- rownames(logreg_top2_CIs)
 logreg_top2_results <- data.frame(summary(logreg_top2)$coefficients)
 logreg_top2_results$names <- rownames(logreg_top2_results)
 
+logreg_top2_std_beta <- data.frame(reghelper::beta(logreg_top2)$coefficients)
+logreg_top2_std_beta$names <- rownames(logreg_top2_std_beta)
+colnames(logreg_top2_std_beta) <- c("std_beta", "SE_std", "z_std", "Pr_z_std", "names")
+logreg_top2_std_beta$names <- gsub(".z", "", logreg_top2_std_beta$names, fixed = TRUE)
+
 
 logreg_top2_results <- full_join(logreg_top2_results, logreg_top2_CIs, by = "names") %>%
+  full_join(logreg_top2_std_beta, by = "names") %>%
   select(names, everything()) %>%
   arrange(names)
-colnames(logreg_top2_results) <- c("var", "coef", "StdError", "z_score", "p_val", "lower_CI", "upper_CI")
+colnames(logreg_top2_results) <- c("var",
+                                   "coef",
+                                   "StdError",
+                                   "z_score",
+                                   "p_val",
+                                   "lower_CI",
+                                   "upper_CI",
+                                   "std_beta",
+                                   "SE_std",
+                                   "z_std",
+                                   "Pr_z_std")
+
+# COMMAND ----------
+
+display(logreg_top2_results)
 
 # COMMAND ----------
 
@@ -196,7 +220,7 @@ display(df_1or2_dummy)
 df_1or2_dummy$positionOrder <- as.factor(df_1or2_dummy$positionOrder)
 df_1or2_dummy$pit_strategy_1 <- as.factor(df_1or2_dummy$pit_strategy_1)
 df_1or2_dummy$pit_strategy_2 <- as.factor(df_1or2_dummy$pit_strategy_2)
-df_1or2_dummy$pit_strategy_3 <- as.factor(df_1or2_dummy$pit_strategy_3)
+df_1or2_dummy$pit_strategy_3a <- as.factor(df_1or2_dummy$pit_strategy_3)
 df_1or2_dummy$pit_strategy_3stops <- as.factor(df_1or2_dummy$pit_strategy_3stops)
 df_1or2_dummy$pit_strategy_missing <- as.factor(df_1or2_dummy$pit_strategy_missing)
 df_1or2_dummy$constructor_quality_not_winner <- as.factor(df_1or2_dummy$constructor_quality_not_winner)
@@ -218,7 +242,7 @@ logreg_1or2 <- glm(`positionOrder` ~ grid +
                    years_since_debut +
                    pit_strategy_1 +
                    pit_strategy_2 +
-                   pit_strategy_3 +
+                   pit_strategy_3a +
                    pit_strategy_3stops +
                    pit_strategy_missing +
                    constructor_quality_not_winner +
@@ -227,7 +251,7 @@ logreg_1or2 <- glm(`positionOrder` ~ grid +
                    circuit_type_street +
                    pit_strategy_1*grid +
                    pit_strategy_2*grid +
-                   pit_strategy_3*grid +
+                   pit_strategy_3a*grid +
                    pit_strategy_3stops*grid +
                    pit_strategy_missing*grid +
                    years_since_debut*grid +
@@ -261,17 +285,46 @@ cat("p-value: ", logreg_1or2_p_val)
 
 # COMMAND ----------
 
-# Get summary table and CIs for plotting
+# Get summary table, std coefficients and CIs for plotting
 logreg_1or2_CIs <- data.frame(confint(logreg_1or2))
 logreg_1or2_CIs$names <- rownames(logreg_1or2_CIs)
 logreg_1or2_results <- data.frame(summary(logreg_1or2)$coefficients)
 logreg_1or2_results$names <- rownames(logreg_1or2_results)
 
+logreg_1or2_std_beta <- data.frame(reghelper::beta(logreg_1or2)$coefficients)
+logreg_1or2_std_beta$names <- rownames(logreg_1or2_std_beta)
+colnames(logreg_1or2_std_beta) <- c("std_beta", "SE_std", "z_std", "Pr_z_std", "names")
+logreg_1or2_std_beta$names <- gsub(".z", "", logreg_1or2_std_beta$names, fixed = TRUE)
 
 logreg_1or2_results <- full_join(logreg_1or2_results, logreg_1or2_CIs, by = "names") %>%
+full_join(logreg_1or2_std_beta, by = "names") %>%
   select(names, everything()) %>%
   arrange(names)
-colnames(logreg_1or2_results) <- c("var", "coef", "StdError", "z_score", "p_val", "lower_CI", "upper_CI")
+colnames(logreg_1or2_results) <- c("var",
+                                   "coef",
+                                   "StdError",
+                                   "z_score",
+                                   "p_val",
+                                   "lower_CI",
+                                   "upper_CI",
+                                   "std_beta",
+                                   "SE_std",
+                                   "z_std",
+                                   "Pr_z_std")
+
+# COMMAND ----------
+
+display(logreg_1or2_results)
+
+# COMMAND ----------
+
+logreg_1or2_results_spark <- SparkR::as.DataFrame(logreg_1or2_results)
+write.df(logreg_1or2_results_spark, "/mnt/xql2001-gr5069/interim/final_project/logreg_1or2_results.csv", "csv", header = TRUE)
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ### Marginal effects grid position
 
 # COMMAND ----------
 
@@ -314,8 +367,3 @@ grid_w_1_stop_low
 
 grid_w_1_stop_high <- logreg_1or2_results$upper_CI[5] + logreg_1or2_results$upper_CI[6]
 grid_w_1_stop_high
-
-# COMMAND ----------
-
-logreg_1or2_results_spark <- SparkR::as.DataFrame(logreg_1or2_results)
-write.df(logreg_1or2_results_spark, "/mnt/xql2001-gr5069/interim/final_project/logreg_1or2_results.csv", "csv", header = TRUE)
