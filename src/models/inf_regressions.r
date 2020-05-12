@@ -16,21 +16,13 @@ sc <- spark_connect(method = "databricks")
 
 # COMMAND ----------
 
-df_top2_dummy_source <- spark_read_csv (sc, name ="df_1or2_dummy", path="/mnt/xql2001-gr5069/processed/final_project/df_top2_dummy.csv")
+df_top2_dummy_source <- spark_read_csv (sc, name ="df_1or2_dummy", path="/mnt/xql2001-gr5069/processed/final_project/infsets/df_top2_dummy.csv")
 df_top2_dummy <- collect(df_top2_dummy_source)
 display(df_top2_dummy)
 
 # COMMAND ----------
 
 df_top2_dummy$`1_or_2` <- as.factor(df_top2_dummy$`1_or_2`)
-df_top2_dummy$pit_strategy_1 <- as.factor(df_top2_dummy$pit_strategy_1)
-df_top2_dummy$pit_strategy_2 <- as.factor(df_top2_dummy$pit_strategy_2)
-
-#This has to be renamed or it screws with reghelper::beta()
-df_top2_dummy$pit_strategy_3a <- as.factor(df_top2_dummy$pit_strategy_3)
-
-df_top2_dummy$pit_strategy_3stops <- as.factor(df_top2_dummy$pit_strategy_3stops)
-df_top2_dummy$pit_strategy_missing <- as.factor(df_top2_dummy$pit_strategy_missing)
 df_top2_dummy$constructor_quality_not_winner <- as.factor(df_top2_dummy$constructor_quality_not_winner)
 df_top2_dummy$constructor_quality_winner <- as.factor(df_top2_dummy$constructor_quality_winner)
 df_top2_dummy$circuit_type_race <- as.factor(df_top2_dummy$circuit_type_race)
@@ -45,20 +37,10 @@ glimpse(df_top2_dummy)
 
 logreg_top2 <- glm(`1_or_2` ~ grid +
                    years_since_debut +
-                   pit_strategy_1 +
-                   pit_strategy_2 +
-                   pit_strategy_3a +
-                   pit_strategy_3stops +
-                   pit_strategy_missing +
                    constructor_quality_not_winner +
                    constructor_quality_winner +
                    circuit_type_race +
                    circuit_type_street +
-                   pit_strategy_1*grid +
-                   pit_strategy_2*grid +
-                   pit_strategy_3a*grid +
-                   pit_strategy_3stops*grid +
-                   pit_strategy_missing*grid +
                    years_since_debut*grid +
                    years_since_debut*circuit_type_race + 
                    years_since_debut*circuit_type_street + 
@@ -161,68 +143,18 @@ grid_alone_high
 
 # COMMAND ----------
 
-grid_w_1_stop <- logreg_top2_results$coef[5] + logreg_top2_results$coef[6]
-grid_w_1_stop
-
-# COMMAND ----------
-
-grid_w_1_stop_low <- logreg_top2_results$lower_CI[5] + logreg_top2_results$lower_CI[6]
-grid_w_1_stop_low
-
-# COMMAND ----------
-
-grid_w_1_stop_high <- logreg_top2_results$upper_CI[5] + logreg_top2_results$upper_CI[6]
-grid_w_1_stop_high
-
-# COMMAND ----------
-
-grid_w_2_stop <- logreg_top2_results$coef[5] + logreg_top2_results$coef[7]
-grid_w_2_stop
-
-# COMMAND ----------
-
-grid_w_2_stop_low <- logreg_top2_results$lower_CI[5] + logreg_top2_results$lower_CI[7]
-grid_w_2_stop_low
-
-# COMMAND ----------
-
-grid_w_2_stop_high <- logreg_top2_results$upper_CI[5] + logreg_top2_results$upper_CI[7]
-grid_w_2_stop_high
-
-# COMMAND ----------
-
-grid_w_3_stop <- logreg_top2_results$coef[5] + logreg_top2_results$coef[8]
-grid_w_3_stop
-
-# COMMAND ----------
-
-grid_w_3_stop_low <- logreg_top2_results$lower_CI[5] + logreg_top2_results$lower_CI[8]
-grid_w_3_stop_low
-
-# COMMAND ----------
-
-grid_w_3_stop_high <- logreg_top2_results$upper_CI[5] + logreg_top2_results$upper_CI[8]
-grid_w_3_stop_high
-
-# COMMAND ----------
-
 # MAGIC %md
 # MAGIC ## LogReg 2 - Predicting 1st/2nd among only 1st or 2nd place
 
 # COMMAND ----------
 
-df_1or2_dummy_source <- spark_read_csv (sc, name ="df_1or2_dummy", path="/mnt/xql2001-gr5069/processed/final_project/df_1or2_dummy.csv")
+df_1or2_dummy_source <- spark_read_csv (sc, name ="df_1or2_dummy", path="/mnt/xql2001-gr5069/processed/final_project/infsets/df_1or2_dummy.csv")
 df_1or2_dummy <- collect(df_1or2_dummy_source)
 display(df_1or2_dummy)
 
 # COMMAND ----------
 
 df_1or2_dummy$positionOrder <- as.factor(df_1or2_dummy$positionOrder)
-df_1or2_dummy$pit_strategy_1 <- as.factor(df_1or2_dummy$pit_strategy_1)
-df_1or2_dummy$pit_strategy_2 <- as.factor(df_1or2_dummy$pit_strategy_2)
-df_1or2_dummy$pit_strategy_3a <- as.factor(df_1or2_dummy$pit_strategy_3)
-df_1or2_dummy$pit_strategy_3stops <- as.factor(df_1or2_dummy$pit_strategy_3stops)
-df_1or2_dummy$pit_strategy_missing <- as.factor(df_1or2_dummy$pit_strategy_missing)
 df_1or2_dummy$constructor_quality_not_winner <- as.factor(df_1or2_dummy$constructor_quality_not_winner)
 df_1or2_dummy$constructor_quality_winner <- as.factor(df_1or2_dummy$constructor_quality_winner)
 df_1or2_dummy$circuit_type_race <- as.factor(df_1or2_dummy$circuit_type_race)
@@ -240,20 +172,10 @@ df_1or2_dummy$positionOrder <- relevel(df_1or2_dummy$positionOrder, ref = "1")
 
 logreg_1or2 <- glm(`positionOrder` ~ grid +
                    years_since_debut +
-                   pit_strategy_1 +
-                   pit_strategy_2 +
-                   pit_strategy_3a +
-                   pit_strategy_3stops +
-                   pit_strategy_missing +
                    constructor_quality_not_winner +
                    constructor_quality_winner +
                    circuit_type_race +
                    circuit_type_street +
-                   pit_strategy_1*grid +
-                   pit_strategy_2*grid +
-                   pit_strategy_3a*grid +
-                   pit_strategy_3stops*grid +
-                   pit_strategy_missing*grid +
                    years_since_debut*grid +
                    years_since_debut*circuit_type_race + 
                    years_since_debut*circuit_type_street + 
@@ -352,18 +274,3 @@ grid_alone_low
 
 grid_alone_high <- logreg_1or2_results$upper_CI[5]
 grid_alone_high
-
-# COMMAND ----------
-
-grid_w_1_stop <- logreg_1or2_results$coef[5] + logreg_1or2_results$coef[6]
-grid_w_1_stop
-
-# COMMAND ----------
-
-grid_w_1_stop_low <- logreg_1or2_results$lower_CI[5] + logreg_1or2_results$lower_CI[6]
-grid_w_1_stop_low
-
-# COMMAND ----------
-
-grid_w_1_stop_high <- logreg_1or2_results$upper_CI[5] + logreg_1or2_results$upper_CI[6]
-grid_w_1_stop_high

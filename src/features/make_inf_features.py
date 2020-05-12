@@ -4,7 +4,6 @@
 
 # COMMAND ----------
 
-from pyspark.sql.types import DateType, IntegerType, DoubleType
 from pyspark.sql import functions as F
 import pandas as pd
 
@@ -53,7 +52,7 @@ display(df_pitstops)
 # MAGIC %md
 # MAGIC ## Table generation
 # MAGIC 
-# MAGIC Filter to include only races from 1950 - 2017 (inclusive)
+# MAGIC Filter to include only races from 1950 - 2010 (inclusive)
 # MAGIC 
 # MAGIC Needed references to cross reference other tables and build features:
 # MAGIC * Race ID
@@ -89,7 +88,7 @@ df_refs_with_outcome = df_results.select('raceId', 'driverId', 'constructorId', 
 
 df_refs_with_outcome = df_refs_with_outcome\
   .filter(df_refs_with_outcome['year'] >= 1950)\
-  .filter(df_refs_with_outcome['year'] <= 2017)
+  .filter(df_refs_with_outcome['year'] <= 2010)
               
 display(df_refs_with_outcome)
 
@@ -115,7 +114,8 @@ display(df_refs_with_outcome.groupby('positionOrder').count().agg(F.sum("count")
 # MAGIC %md
 # MAGIC There are missing values in grid position, labelled 0
 # MAGIC 
-# MAGIC These are probably DNQs or crashes during qualifying. 
+# MAGIC These are DNQs, crashes during qualifying, or other issues causing race retirement
+# MAGIC (see statusIds and match to status.csv)
 # MAGIC * All but a handful have unrealistic finishing positions of high 20s or 30s,
 # MAGIC suggesting that these positions were inferred.
 # MAGIC * None of these position 0s had a podium finish, while only 11 finished in 
@@ -131,7 +131,7 @@ display(df_refs_with_outcome)
 # COMMAND ----------
 
 df_refs_with_outcome.count()
-#1566 missing values removed
+# missing values removed
 
 # COMMAND ----------
 
@@ -210,40 +210,20 @@ display(df_refs_outcome_driver_exp_pit.groupby('pit_strategy').count())
 
 # COMMAND ----------
 
-df_pitstops.select('raceId').distinct().count()
-
-# COMMAND ----------
-
-df_refs_outcome_driver_exp.select('raceId').distinct().count()
+df_pitstops_year = df_pitstops.join(df_races.select('raceId', 'year'), on = ['raceId'], how = 'left')
+display(df_pitstops_year.describe('year'))
 
 # COMMAND ----------
 
 # MAGIC %md
 # MAGIC We have a lot of null values here. This seems to be because 
-# MAGIC we only have pitstop data for a minority of races
-# MAGIC (see code just above)
+# MAGIC we only have pitstop data from 2011.
 # MAGIC 
-# MAGIC Removing these null values leads to questions as to 
-# MAGIC whether the pattern of missingless in races with 
-# MAGIC available pitstop data is a random sample. 
-# MAGIC 
-# MAGIC Spoiler, it is not, given that the raceIds of data with pitstops 
-# MAGIC ranges from 841 to 1030 (get this by sorting df pitstops), omitting 
-# MAGIC 1-840 and 1031-1040. These IDs mostly correspond to races
-# MAGIC in the 2010s.
-# MAGIC 
-# MAGIC Imputation is a bad strategy for an inferential model, since 
-# MAGIC we should understand what's happening by inference first before
-# MAGIC trying to impute strategies used. Also, as there is a missingness
-# MAGIC pattern that isn't random, imputation might result in a bias in the
-# MAGIC pit strategy data.
-# MAGIC 
-# MAGIC I think it is best to leave null values as their own nominal class.
-# MAGIC This could correspond to 'old strategies' of races before the 2010s.
+# MAGIC We can't use this feature
 
 # COMMAND ----------
 
-df_refs_outcome_driver_exp_pit = df_refs_outcome_driver_exp_pit.fillna({'pit_strategy':'missing'})
+df_refs_outcome_driver_exp_pit = df_refs_outcome_driver_exp_pit.drop('pit_strategy')
 display(df_refs_outcome_driver_exp_pit)
 
 # COMMAND ----------
@@ -281,15 +261,15 @@ len(constructors_won)
 
 # COMMAND ----------
 
-df_refs_outcome_driver_exp_pit_const = df_refs_outcome_driver_exp_pit\
+df_refs_outcome_driver_exp_const = df_refs_outcome_driver_exp_pit\
   .withColumn('constructor_quality',F.when(F.col('constructorId').isin(constructors_won), 'winner')\
               .otherwise('not_winner'))
 
-display(df_refs_outcome_driver_exp_pit_const)
+display(df_refs_outcome_driver_exp_const)
 
 # COMMAND ----------
 
-df_refs_outcome_driver_exp_pit_const.count()
+df_refs_outcome_driver_exp_const.count()
 
 # COMMAND ----------
 
@@ -300,16 +280,16 @@ df_refs_outcome_driver_exp_pit_const.count()
 
 # Check for missing constructor IDs
 # display(df_constructors.groupby('constructorId').count())
-# display(df_refs_outcome_driver_exp_pit_const.groupby('constructorId').count())
-display(df_refs_outcome_driver_exp_pit_const.groupby('constructorId').count().agg(F.sum("count")))
+# display(df_refs_outcome_driver_exp_const.groupby('constructorId').count())
+display(df_refs_outcome_driver_exp_const.groupby('constructorId').count().agg(F.sum("count")))
 
 # Don't seem to be any missing values
 
 # COMMAND ----------
 
 # Check for missing constructor_quality
-#display(df_refs_outcome_driver_exp_pit_const.groupby('constructor_quality').count())
-display(df_refs_outcome_driver_exp_pit_const.groupby('constructor_quality').count().agg(F.sum("count")))
+#display(df_refs_outcome_driver_exp_const.groupby('constructor_quality').count())
+display(df_refs_outcome_driver_exp_const.groupby('constructor_quality').count().agg(F.sum("count")))
 
 # Don't seem to be any missing values
 
@@ -346,16 +326,16 @@ street_circuits = [int(id) for id in street_circuits['circuitId'].tolist()]
 
 # COMMAND ----------
 
-df_refs_outcome_driver_exp_pit_const_circuit = df_refs_outcome_driver_exp_pit_const\
+df_refs_outcome_driver_exp_const_circuit = df_refs_outcome_driver_exp_const\
   .join(df_races.select('raceId', 'circuitId'), on = ['raceId'], how = 'left')\
   .withColumn('circuit_type',F.when(F.col('circuitId').isin(street_circuits), 'street')\
               .otherwise('race'))
 
-display(df_refs_outcome_driver_exp_pit_const_circuit)
+display(df_refs_outcome_driver_exp_const_circuit)
 
 # COMMAND ----------
 
-df_refs_outcome_driver_exp_pit_const_circuit.count()
+df_refs_outcome_driver_exp_const_circuit.count()
 
 # COMMAND ----------
 
@@ -366,16 +346,16 @@ df_refs_outcome_driver_exp_pit_const_circuit.count()
 
 # Check for missing circuit IDs
 # display(df_circuits.groupby('circuitId').count())
-# display(df_refs_outcome_driver_exp_pit_const_circuit.groupby('circuitId').count())
-display(df_refs_outcome_driver_exp_pit_const_circuit.groupby('circuitId').count().agg(F.sum("count")))
+# display(df_refs_outcome_driver_exp_const_circuit.groupby('circuitId').count())
+display(df_refs_outcome_driver_exp_const_circuit.groupby('circuitId').count().agg(F.sum("count")))
 
 # Don't seem to be any missing values
 
 # COMMAND ----------
 
 # Check for missing circuit types
-# display(df_refs_outcome_driver_exp_pit_const_circuit.groupby('circuit_type').count())
-display(df_refs_outcome_driver_exp_pit_const_circuit.groupby('circuit_type').count().agg(F.sum("count")))
+# display(df_refs_outcome_driver_exp_const_circuit.groupby('circuit_type').count())
+display(df_refs_outcome_driver_exp_const_circuit.groupby('circuit_type').count().agg(F.sum("count")))
 
 # COMMAND ----------
 
@@ -384,16 +364,16 @@ display(df_refs_outcome_driver_exp_pit_const_circuit.groupby('circuit_type').cou
 
 # COMMAND ----------
 
-display(df_refs_outcome_driver_exp_pit_const_circuit)
+display(df_refs_outcome_driver_exp_const_circuit)
 
 # COMMAND ----------
 
 # MAGIC %md 
-# MAGIC Borrowing this for predictive task
+# MAGIC Borrowing this to potentially use for predictive task
 
 # COMMAND ----------
 
-df_refs_outcome_driver_exp_pit_const_circuit.coalesce(1).write.csv('/mnt/xql2001-gr5069/interim/final_project/df_inf_master.csv', header=True)
+df_refs_outcome_driver_exp_const_circuit.coalesce(1).write.csv('/mnt/xql2001-gr5069/interim/final_project/df_inf_master.csv', header=True)
 
 # COMMAND ----------
 
@@ -402,24 +382,23 @@ df_refs_outcome_driver_exp_pit_const_circuit.coalesce(1).write.csv('/mnt/xql2001
 
 # COMMAND ----------
 
-df_top2 = df_refs_outcome_driver_exp_pit_const_circuit.select('grid',
-                                                              'years_since_debut', 
-                                                              'pit_strategy',
-                                                              'constructor_quality',
-                                                              'circuit_type',
-                                                              '1_or_2')
+df_top2 = df_refs_outcome_driver_exp_const_circuit.select('grid',
+                                                          'years_since_debut',
+                                                          'constructor_quality',
+                                                          'circuit_type',
+                                                          '1_or_2')
 display(df_top2)
 
 # COMMAND ----------
 
 pd_top2 = df_top2.toPandas()
-pd_top2_dummy = pd.get_dummies(pd_top2, columns = ['pit_strategy', 'constructor_quality', 'circuit_type'])
+pd_top2_dummy = pd.get_dummies(pd_top2, columns = ['constructor_quality', 'circuit_type'])
 display(pd_top2_dummy)
 
 # COMMAND ----------
 
 df_top2_dummy = spark.createDataFrame(pd_top2_dummy)
-df_top2_dummy.coalesce(1).write.csv('/mnt/xql2001-gr5069/processed/final_project/df_top2_dummy.csv', header=True)
+df_top2_dummy.coalesce(1).write.csv('/mnt/xql2001-gr5069/processed/final_project/infsets/df_top2_dummy.csv', header=True)
 
 # COMMAND ----------
 
@@ -428,28 +407,19 @@ df_top2_dummy.coalesce(1).write.csv('/mnt/xql2001-gr5069/processed/final_project
 
 # COMMAND ----------
 
-df_1or2 = df_refs_outcome_driver_exp_pit_const_circuit\
-  .filter(df_refs_outcome_driver_exp_pit_const_circuit['positionOrder'] <= 2)\
-  .select('grid',
-          'years_since_debut', 
-          'pit_strategy',
-          'constructor_quality',
-          'circuit_type',
-          'positionOrder')
+df_1or2 = df_refs_outcome_driver_exp_const_circuit\
+  .filter(df_refs_outcome_driver_exp_const_circuit['positionOrder'] <= 2)\
+  .select('grid', 'years_since_debut', 'constructor_quality', 'circuit_type', 'positionOrder')
   
 display(df_1or2)
 
 # COMMAND ----------
 
 pd_1or2 = df_1or2.toPandas()
-pd_1or2_dummy = pd.get_dummies(pd_1or2, columns = ['pit_strategy', 'constructor_quality', 'circuit_type'])
+pd_1or2_dummy = pd.get_dummies(pd_1or2, columns = ['constructor_quality', 'circuit_type'])
 display(pd_1or2_dummy)
 
 # COMMAND ----------
 
 df_1or2_dummy = spark.createDataFrame(pd_1or2_dummy)
-df_1or2_dummy.coalesce(1).write.csv('/mnt/xql2001-gr5069/processed/final_project/df_1or2_dummy.csv', header=True)
-
-# COMMAND ----------
-
-
+df_1or2_dummy.coalesce(1).write.csv('/mnt/xql2001-gr5069/processed/final_project/infsets/df_1or2_dummy.csv', header=True)
