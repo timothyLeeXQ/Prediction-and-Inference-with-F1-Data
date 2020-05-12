@@ -31,23 +31,15 @@ Startin grid position was found to be the most important variable in explaining 
 
 Thus, Starting Grid Position is likely to be useful for predicting 2nd place finishes.
 
-##### Pit Strategy
-
-Different strategies create different race dynamics, juggling the need to overtake with faster speeds of the car.
-
-Pit strategy was also found to explain top 2 finishes, and in the case of a single pit strategy, was significant in differentiating first from second. Pit strategy also had some significant conditional relationships with grid position.
-
-Pit strategy may be useful for predicting 2nd place finishes, given findings from the inferential model. However, because most non-missing pit data comes from later races, there may not be sufficient data in the training set to match against the more recent races of the test set. If this is the case, pit strategy and any other pit-stop based feature cannot be used.
-
 ##### Constructor quality
 
 A good constructor brings a stronger pit team, better car, and better training to a race. Constructor quality was found to be a significant predictor in the inferential model for distinguishing top 2 finishes from the rest of the competitors. The quality of the constructor, operationalised here in the same way, should therefore also be predictive of second place finishes.
 
-#### Other features
-
 ##### Driver Experience
 
-Driver experience was not siginificant in either inferential model for top 2 finishes or distinguishing first from second. However, in the former case, it approached significance, suggesting that it may have some predictive power in determining second place positioning.
+Driver experience was siginificant in the inferential model for distinguishing top 2 finishes from the rest of the competitors. Like with constructor quality then, it should also be predictive of 2nd place finishes.
+
+#### Other features
 
 ##### Driver Average Finishing Position
 In discussing the lack of significance of driver experience in the inferential model, I mentioned that driver experience might not fully capture the construct of driver skill. Some drivers may be very talented and win races from the start. Driver average finishing position would capture some of this aspect of driver skill and likely hold some predictive power.
@@ -55,20 +47,18 @@ In discussing the lack of significance of driver experience in the inferential m
 ##### Constructor Average Finishing Position
 In the same way, constructor average finishing position may be a better metric of constructor quality, which is already considered to be a potential predictor above.
 
-##### Average Qualifying lap time
+##### Q1 Qualifying Lap Time
 Qualifying lap time did not make sense to include in the inferential model as it held little theoretical value. Qualifiying lap time as a significant model term (after controlling for the grid position earned) will simply tell you "fast tends to win", which I think is safe to assume would not even satisfy a 5 year old. However, such a direct proxy of "fast car" will likely be valuable in predicting future race outcomes in the time between the Saturday and Sunday races.
 
-The average is used because
-* Eliminations mean that Q2 and Q1 data are missing for many drivers in each race
-* Gets around rule changes in the past where only a single qualifying lap was used, which creates "missing" Q2 and Q1 data that cannot be simply imputed by using the max value (as you could reasonably do for missing actual Q2/Q1 data)
-* For drivers where Q2 and Q1 data are present, an average provides a more robust estimate of their speed
+Q1 is used because it is common across all drivers. Eliminations mean that Q2 and Q3 data are missing for many drivers in each race. Also, in Q2 and Q3, drivers race with fewer cars on the track and are subject to tactical decisions like what tires to use (that may need to be reused in the real race). Hence, taking an average does not measure drivers who only have Q1 data on the same playing field as those who advance to later qualifying rounds.
 
-##### Q3 Qualifying Lap Time
-While the average provides more robust estimates of a car's speed in qualifying, using just Q3 may provide a more valid, even comparison in car speeds, since Q2 and Q1 are slightly different from Q3 in that less cars are on the track.
+##### Not considered due to missing data
 
-I think it's worth using both to try and get a better estimate and capture the "fast car" construct.
+Different strategies create different race dynamics, juggling the need to overtake with faster speeds of the car. Pit strategy may be useful for predicting 2nd place finishes. Pit strategy was posited to be important in the inferential task but ultimately could not be used as data only existed from 2011.
 
-#### Non-time invariant variables that might otherwise be useful
+However, even though the task now extends to the period where pit data is available, pit data will still be entirely absent in the training set. Hence, pit strategy and any other pit-stop based feature cannot be used.
+
+#### Non-time invariant variables that are hence not considered
 * Driver - Drivers retire, and new drivers join F1 all the time
 * Circuit - Circuits are added and removed all the time
 * Average Laptime - A great lap time in the past is a horrible lap time now, due to improvements in cars, driver skill, etc.
@@ -76,10 +66,11 @@ I think it's worth using both to try and get a better estimate and capture the "
 * Pit times
   - Dependent on rule changes e.g. refuelling
   - [Trend of declining pit times as teams refined pit operations](https://statathlon.com/analysis-of-the-pit-stop-strategy-in-f1/)
+  - Pit data only available after 2011
 * Driver total points - [Changes in the points system over the years make it difficult to compare points between past drivers with more recent ones.](https://en.wikipedia.org/wiki/Formula_One_racing)
 
 ### Outcome
-Out outcome variable is whether a driver comes in 2nd, or comes in any other position.
+Our outcome variable is whether a driver comes in 2nd, or comes in any other position.
 
 ### Iteration
 
@@ -97,6 +88,17 @@ Trying different predictive modelling algorithms may result in finding a better 
 
 #### Model Hyperparameters
 Many modelling algorithms have user-defined parameters that can be set. Iterating over these may yield a model with settings that provide better performance. While trying both Random Forest and Gradient Boost algorithms, we also experiment with their hyperparameters hoping to optimise model performance further.
+
+* Random Forest Hyperparameter tuning
+  - Number of trees in ensemble - 1000
+  - Number of features per tree - All, or square root of total number of features
+  - Tree depth - 1 to 10
+* Gradient Boost Hyperparameter tuning
+  - Loss function - deviance
+  - Learning rate - 0.3, 0.5, 0.7, 0.9
+  - Number of trees in ensemble - 1000
+  - Number of features per tree - All, or square root of total number of features
+  - Tree depth - 1 to 10
 
 #### Resampling Strategy
 
@@ -124,11 +126,71 @@ This does not reflect the truth that every race must have a 2nd place finish, as
 
 Here, I get around this problem by using probabilities of a 2nd place finish rather than predicted classes to award the predicted 2nd place position. For each race, only the driver with the highest probability of a 2nd place finish is awarded the predicted 2nd place spot.
 
-We will use **Sensitivity (The True Positive Rate)**, to evaluate the quality of our model. This is chosen as
+We will use **Sensitivity**, to evaluate the quality of our model.
 
-* In this case of position exclusivity, sensitivity is equivalent to the proportion of races where the model predicts 2nd place correctly, which makes intuitive sense for deciding whether it does a good job.
-* True negatives are not considered in calculating sensitivity
-  - This is important as if number 2 is exclusive and only 1 car can earn that spot, a true positive prediction also means a true negative prediction for every other car in the race, while a false positive prediction only means a false negative prediction for one other car in the race. This means that no matter the actual quality of the model, the true negative rate will be much higher than true positives, false positives, and false negatives.
+Sensitivity, the True Positive Rate, is calculated with the following formula: Sensitivity = TP/(TP+FP), where TP is the number of true positives and FP is the number of false positives.
 
+This is chosen as in this case of position exclusivity, sensitivity is equivalent to the proportion of races where the model predicts 2nd place correctly. This makes intuitive sense for deciding whether the model does a good job.
+
+Also, true negatives are not considered in calculating sensitivity. This is important as if number 2 is exclusive and only 1 car can earn that spot, a true positive prediction also means a true negative prediction for every other car in the race, while a false positive prediction only means a false negative prediction for one other car in the race. This means that no matter the actual quality of the model, the true negative rate will always be much higher than true positives, false positives, and false negatives.
+
+### Unforseen circumstances
+Unfortunately it was discovered that the dataset only contains qualifying lap data from 1994 onwards, meaning that it would be missing in most of the training set. Furthermore, there was a small amount of missing data after 1994, likely among drivers who failed to finish the first qualifying round.
+
+To deal with this issue, imputation was attempted, using the rest of the features in a K-Nearest Neighbours model to fill in the missing values.
+
+Understanding that imputation was likely to be a problem because races from earlier in F1 history were likely to be systematically different from more recent races, I decided to hedge and add the presence or absence of q1 qualifying times as a feature as another iteration parameter.
 
 ## Results and Discussion
+
+### Model Run Results
+![Precision scores of all models run](https://i.imgur.com/YbQQoeV.png)
+
+Model performance ranged from dismal (almost 0% precision, meaning its predictions are wrong all the time) to good (20+% precision, or predicting 1 in every 4-5 races correct*). Random forest algorithms tended to perform better than gradient boost, although there were some fairly successful gradient boost models. The presence of the imputed Q1 laptimes did not seem to harm model performance, and similar performance was seen across the different resampling techniques used to address class imbalance in the training set. The most variance in performance is seen across the model hyperparameters.
+
+_* Given that there are about 20 drivers in a modern F1 race (like those in our test set from 2011 to 2017), meaning chance performance is getting the prediction right every 20 races (5% precision), 20% or 1-in-5 races correct should be considered good._
+
+### Best Model
+
+#### Precision - 0.248
+This precision score is similar to saying that the model is right in about 1 in 4 races. This is pretty good performance.
+
+#### Parameters
+
+* Algorithm - Random Forest
+* Sampling technique - Random Undersampling
+* Tree depth - 7
+* Number of features per tree - Square root of total number of features
+* Number of trees in ensemble - 1000
+* Included Q1 laptime data - No
+
+#### Feature Importance and Comparison with Inferential Model
+![Feature Importances of the Best Model](https://i.imgur.com/AqrIFH7.png)
+
+Random Forest feature importance is measured as the proportion of times which a feature is used as a split in the constituent trees.
+
+##### Starting Grid Position
+Grid position is by far the most important feature in prediction, as it is in inference. It is used in almost twice the number of splits as the next most important variable, driver average finishing position. This is noteworthy since driver average finishing position is actually directly related to the target variable (coming in second), but is still less important than grid position.
+
+As noted in the inferential write up, starting with a high grid position confers several advantages that seem to be critical for attaining a top position, and the model seems to have picked up on that.
+
+##### Driver skill
+Driver experience, which was found to be associated with a top 2 position to a statistically significant degree in the inferential model, also plays a role in the predictive model. However, that role is small, and may be attributed at least in part to the absence of other more important features in some of the trees that made up the random forest.
+
+However, driver average finishing position was found to be a very important predictor. This supports, but far from asserts, my earlier suspicion that a better opreationalisation of driver skill may show driver skill to be more important to one's finishing position. This may also be due to average finishing position being directly related to a second place finish as well.
+
+##### Constructor quality
+Summing the dummy coded constructor quality features gives a relative importance greater than driver experience. This comparison of importance is similar to the inferential logistic regression modelling top two finishes, where constructor quality is more important than driver experience but less important than grid position, as measured by standardised coefficients.
+
+However, constructor average finishing position shows a weaker relative importance to driver average finishing position. This suggests that the skill of the constructor is less crucial than the skill of the driver in securing second place (with this not being captured in the winning constructor and driver experience operationalisations of driver and constructor skill that were the sole measures of these used in the inferential model).
+
+However, this may also be due to average finishing position being directly related to a second place finish more so than the constructors' average finishing position. It may also reflect changes in constructors' quality over the years that render it a weaker predictor of future performance.
+
+## Endnote: Future Work
+
+1. Iterate with different algorithms
+2. Include other likely meaningful features if they can be obtained
+  - Pit strategy and other aspects of team strategy
+  - Weather and race conditions
+  - Better operationalisation of driver and constructor skills
+3. Run model with full qualifying laptime data if it can be obtained
