@@ -52,8 +52,12 @@ comes in second place for races between 2011 and 2017, using data from 1950 to
 
 ### To Do
 
+### Done
 #### General
-1. Populate and maintain references
+1. Create basic repo structure
+2. Populate README
+3. Draw up to do list
+4. Populate and maintain references
 
 #### Prediction Task
 1. Choose and justify choice of model evaluation metric
@@ -65,7 +69,6 @@ comes in second place for races between 2011 and 2017, using data from 1950 to
       - Wrangle data to provide these other features
     - Use feature extraction and feature selection techniques to generate other
   features to try
-    - Scale features
 4. Iterate over 3 and 4 to try and improve model performance
 5. Share model results
 6. Explain and discuss best performing models
@@ -74,12 +77,6 @@ comes in second place for races between 2011 and 2017, using data from 1950 to
 
 #### Final
 1. Comparison of predictive model with inferential model
-
-### Done
-#### General
-1. Create basic repo structure
-2. Populate README
-3. Draw up to do list
 
 #### Inferential Task
 1. Develop and explain informal theory of F1 and testable hypotheses in
